@@ -1,6 +1,6 @@
 # AI-Powered Financial Safety & Decision Assistant
 
-BWT Hackathon Project | Track: Finance (TRAE-Based Hackathon)
+## Problem Statement: Financial Clarity | Track: Future Finance Platforms
 
 An AI-powered Financial Stability Companion designed to assist low-income households (e.g., ~₹15,000 monthly income) in making safer financial decisions using structured, responsible, and grounded artificial intelligence.
 
