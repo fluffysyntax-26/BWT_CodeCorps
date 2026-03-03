@@ -8,6 +8,8 @@ An AI-powered Financial Stability Companion designed to assist low-income househ
 
 The system follows a modular, secure layered architecture where AI acts strictly as an interpretation layer, ensuring all advice is grounded in deterministic financial data computed by the backend.
 
+![Architecture Diagram](./architecture_diagram.png)
+
 ## Key Features
 
 - **Secure Authentication:** Robust user authentication and session management powered by Clerk.
