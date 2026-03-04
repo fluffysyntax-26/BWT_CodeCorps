@@ -16,7 +16,8 @@ class DecisionRequest(BaseModel):
         ..., description="e.g., New EMI, Vehicle Loan, Medical Emergency"
     )
     amount: float
-    duration_months: Optional[int] = None
+    interest_rate: Optional[float] = 0.0
+    duration_months: Optional[int] = 12
     description: Optional[str] = None
 
 
@@ -25,7 +26,9 @@ class UserProfile(BaseModel):
     current_debt: float = Field(
         ..., description="User's current total monthly debt obligations"
     )
-    savings_rate: float = Field(..., description="Percentage of income saved monthly")
+    savings_rate: Optional[float] = Field(None, description="Percentage of income saved monthly")
+    fixed_expenses: float = Field(..., description="User's fixed monthly expenses")
+    current_savings: float = Field(..., description="User's current total savings")
 
 
 class ChatRequest(BaseModel):
