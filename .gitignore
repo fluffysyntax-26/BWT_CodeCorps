@@ -3,3 +3,4 @@ __pycache__
 docs
 .idea
 .env
+.DS_Store
