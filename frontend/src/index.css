@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+:root {
+    color-scheme: dark;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    @apply bg-slate-950 text-slate-200;
+}
+
+/* Custom scrollbar for that modern look */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    @apply bg-slate-950;
+}
+::-webkit-scrollbar-thumb {
+    @apply bg-slate-800 rounded-[10px];
+}
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-700;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
