@@ -49,6 +49,7 @@ export const useApi = (getToken) => {
     return {
         getProfile: () => api.get('/profile'),
         updateProfile: (data) => api.post('/profile', data),
+        resetProfile: () => api.delete('/profile'),
         getExpenses: () => api.get('/expenses'),
         addExpense: (data) => api.post('/expenses', data),
         deleteExpense: (id) => api.delete(`/expenses/${id}`),
