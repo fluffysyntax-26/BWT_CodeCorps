@@ -2,25 +2,50 @@ import React, { useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApi } from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, CheckCircle, Info, ShieldAlert, ArrowRight, Loader2 } from 'lucide-react';
+import { 
+    AlertTriangle, 
+    CheckCircle, 
+    Info, 
+    ShieldAlert, 
+    Loader2, 
+    Zap,
+    TrendingUp,
+    Clock,
+    DollarSign,
+    IndianRupee,
+    Share2,
+    Save
+} from 'lucide-react';
 
 const Decisions = () => {
     const { getToken } = useAuth();
     const api = useApi(getToken);
 
-    const [amount, setAmount] = useState('');
-    const [decisionType, setDecisionType] = useState('New EMI');
+    const [formData, setFormData] = useState({
+        amount: '',
+        decisionType: 'New EMI',
+        interestRate: '10.5',
+        duration: '12'
+    });
+    
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
 
     const handleEvaluate = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setResult(null); // Clear previous result
+        setResult(null);
         try {
             const payload = {
-                decision_type: decisionType,
-                amount: parseFloat(amount)
+                decision_type: formData.decisionType,
+                amount: parseFloat(formData.amount),
+                interest_rate: parseFloat(formData.interestRate),
+                duration_months: parseInt(formData.duration)
             };
             const res = await api.evaluateDecision(payload);
             setResult(res.data);
@@ -36,118 +61,154 @@ const Decisions = () => {
         }
     };
 
-    const getRiskColor = (level) => {
+    const getRiskBadgeColor = (level) => {
         switch (level) {
-            case 'High': return 'text-red-500 bg-red-500/10 border-red-500/20';
-            case 'Moderate': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
-            case 'Low': return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
-            default: return 'text-slate-400 bg-slate-800 border-slate-700';
+            case 'High': return 'bg-red-500 text-white';
+            case 'Moderate': return 'bg-orange-500 text-white';
+            case 'Low': return 'bg-emerald-500 text-white';
+            default: return 'bg-slate-500 text-white';
         }
     };
 
-    const getRiskIcon = (level) => {
+    const getRiskTextColor = (level) => {
         switch (level) {
-            case 'High': return <ShieldAlert className="w-12 h-12 text-red-500" />;
-            case 'Moderate': return <AlertTriangle className="w-12 h-12 text-yellow-500" />;
-            case 'Low': return <CheckCircle className="w-12 h-12 text-emerald-500" />;
-            default: return <Info className="w-12 h-12 text-slate-400" />;
+            case 'High': return 'text-red-400';
+            case 'Moderate': return 'text-orange-400';
+            case 'Low': return 'text-emerald-400';
+            default: return 'text-slate-400';
         }
     };
 
     return (
-        <div className="max-w-5xl mx-auto p-6 space-y-8">
-            <header className="text-center space-y-4 mb-12">
-                <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                    Risk Engine
-                </h1>
-                <p className="text-slate-400 max-w-2xl mx-auto text-lg">
-                    Before you commit to a new expense, let our AI analyze its impact on your financial stability.
-                </p>
+        <div className="max-w-6xl mx-auto p-6 space-y-8">
+            <header className="mb-8">
+                <h1 className="text-3xl font-bold text-white mb-2">Evaluate Decision</h1>
+                <p className="text-slate-400">Assess the long-term impact of your next major financial commitment.</p>
             </header>
 
-            <div className="grid md:grid-cols-2 gap-8 items-start">
-                {/* Input Section */}
-                <motion.div 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-2xl p-8 shadow-xl"
-                >
-                    <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-                        <Info className="w-5 h-5 text-blue-500" />
-                        Decision Parameters
-                    </h2>
-                    <form onSubmit={handleEvaluate} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium mb-2 text-slate-300">Type of Expense</label>
-                            <div className="relative">
-                                <select
-                                    value={decisionType}
-                                    onChange={(e) => setDecisionType(e.target.value)}
-                                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3.5 text-white focus:ring-2 focus:ring-blue-500 outline-none appearance-none transition-all hover:border-slate-600"
-                                >
-                                    <option value="New EMI">New EMI (Loan/Financing)</option>
-                                    <option value="Vehicle Loan">Vehicle Loan</option>
-                                    <option value="Medical Emergency">Medical Emergency</option>
-                                    <option value="Major Purchase">Major Purchase</option>
-                                    <option value="Education Loan">Education Loan</option>
-                                    <option value="Home Renovation">Home Renovation</option>
-                                </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-                                    ▼
+            <div className="grid lg:grid-cols-12 gap-8 items-start">
+                {/* Input Section - Left Column */}
+                <div className="lg:col-span-5 space-y-6">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl"
+                    >
+                        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                <Zap className="w-5 h-5 text-blue-500" />
+                            </div>
+                            Decision Details
+                        </h2>
+                        
+                        <form onSubmit={handleEvaluate} className="space-y-5">
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-300 mb-1.5">Decision Type</label>
+                                <div className="relative">
+                                    <select
+                                        name="decisionType"
+                                        value={formData.decisionType}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none appearance-none transition-all font-medium"
+                                    >
+                                        <option value="New EMI">New EMI (Loan/Financing)</option>
+                                        <option value="Vehicle Loan">Vehicle Loan</option>
+                                        <option value="Medical Emergency">Medical Emergency</option>
+                                        <option value="Major Purchase">Major Purchase</option>
+                                        <option value="Education Loan">Education Loan</option>
+                                        <option value="Home Renovation">Home Renovation</option>
+                                    </select>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                                        ▼
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-medium mb-2 text-slate-300">Monthly Cost / EMI Amount</label>
-                            <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">₹</span>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-300 mb-1.5">Total Amount (₹)</label>
                                 <input
                                     type="number"
-                                    value={amount}
-                                    onChange={(e) => setAmount(e.target.value)}
-                                    className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-8 pr-4 py-3.5 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all hover:border-slate-600"
-                                    placeholder="e.g. 500"
+                                    name="amount"
+                                    value={formData.amount}
+                                    onChange={handleInputChange}
+                                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium placeholder:text-slate-500"
+                                    placeholder="e.g. 150000"
                                     required
                                     min="0"
                                 />
                             </div>
-                        </div>
 
-                        <button
-                            disabled={loading || !amount}
-                            className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white px-6 py-4 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98]"
-                        >
-                            {loading ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                    Analyzing Financial Impact...
-                                </>
-                            ) : (
-                                <>
-                                    Evaluate Risk <ArrowRight className="w-5 h-5" />
-                                </>
-                            )}
-                        </button>
-                    </form>
-                </motion.div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-300 mb-1.5">Interest Rate (%)</label>
+                                    <input
+                                        type="number"
+                                        name="interestRate"
+                                        value={formData.interestRate}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium"
+                                        placeholder="10.5"
+                                        step="0.1"
+                                        min="0"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-300 mb-1.5">Duration (Months)</label>
+                                    <input
+                                        type="number"
+                                        name="duration"
+                                        value={formData.duration}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium"
+                                        placeholder="24"
+                                        min="1"
+                                    />
+                                </div>
+                            </div>
 
-                {/* Result Section */}
-                <div className="relative min-h-[400px]">
+                            <button
+                                disabled={loading || !formData.amount}
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-lg font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 mt-2"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Running Analysis...
+                                    </>
+                                ) : (
+                                    <>
+                                        <TrendingUp className="w-5 h-5" />
+                                        Run AI Evaluation
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    </motion.div>
+
+                    <div className="bg-blue-900/20 border border-blue-500/20 rounded-xl p-4 flex gap-3 items-start">
+                        <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+                        <p className="text-sm text-blue-200 leading-relaxed">
+                            This evaluation uses your current profile data (Income, Savings, Debt) to calculate potential risk scores and financial impact.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Result Section - Right Column */}
+                <div className="lg:col-span-7">
                     <AnimatePresence mode="wait">
                         {!result && !loading && (
                             <motion.div 
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-slate-800 rounded-2xl bg-slate-900/20"
+                                className="h-full min-h-[500px] flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-slate-800 rounded-2xl bg-slate-900/20"
                             >
-                                <div className="w-20 h-20 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
-                                    <ShieldAlert className="w-10 h-10 text-slate-600" />
+                                <div className="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-6">
+                                    <TrendingUp className="w-12 h-12 text-slate-600" />
                                 </div>
-                                <h3 className="text-xl font-medium text-slate-400 mb-2">Ready to Analyze</h3>
-                                <p className="text-slate-500 max-w-xs">
-                                    Enter your expense details to get a personalized risk assessment based on your profile.
+                                <h3 className="text-xl font-medium text-slate-300 mb-2">Ready to Evaluate</h3>
+                                <p className="text-slate-500 max-w-sm">
+                                    Fill in the decision details on the left to generate a comprehensive AI risk analysis.
                                 </p>
                             </motion.div>
                         )}
@@ -157,101 +218,130 @@ const Decisions = () => {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800"
+                                className="h-full min-h-[500px] flex flex-col items-center justify-center bg-slate-900 rounded-2xl border border-slate-800 shadow-xl"
                             >
                                 <div className="relative w-24 h-24 mb-8">
-                                    <div className="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
-                                    <div className="absolute inset-0 border-4 border-t-blue-500 rounded-full animate-spin"></div>
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <ShieldAlert className="w-8 h-8 text-blue-500 animate-pulse" />
-                                    </div>
+                                    <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
+                                    <div className="absolute inset-0 border-4 border-t-blue-600 rounded-full animate-spin"></div>
                                 </div>
-                                <h3 className="text-xl font-semibold text-white mb-2">Crunching Numbers...</h3>
-                                <p className="text-slate-400">Comparing with your financial profile</p>
+                                <h3 className="text-xl font-bold text-white mb-2">Analyzing Financial Impact...</h3>
+                                <p className="text-slate-500">Calculating risk metrics and generating insights</p>
                             </motion.div>
                         )}
 
                         {result && (
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                                className={`h-full rounded-2xl border p-8 flex flex-col ${
-                                    result.warning ? 'bg-slate-900 border-blue-500/30' : 
-                                    result.risk_level === 'High' ? 'bg-gradient-to-b from-red-950/30 to-slate-950 border-red-500/30' :
-                                    result.risk_level === 'Moderate' ? 'bg-gradient-to-b from-yellow-950/30 to-slate-950 border-yellow-500/30' :
-                                    'bg-gradient-to-b from-emerald-950/30 to-slate-950 border-emerald-500/30'
-                                }`}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800"
                             >
-                                <div className="flex items-center justify-between mb-8">
-                                    <div>
-                                        <p className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-1">Risk Assessment</p>
-                                        <h2 className={`text-3xl font-bold ${
-                                            result.risk_level === 'High' ? 'text-red-400' :
-                                            result.risk_level === 'Moderate' ? 'text-yellow-400' :
-                                            result.risk_level === 'Low' ? 'text-emerald-400' :
-                                            'text-blue-400'
-                                        }`}>
-                                            {result.warning ? 'Action Required' : `${result.risk_level} Risk`}
-                                        </h2>
+                                {/* Header */}
+                                <div className="bg-slate-950/50 px-8 py-6 border-b border-slate-800 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <AlertTriangle className="w-5 h-5 text-orange-400" />
+                                        <span className="font-bold text-orange-400 tracking-wide text-sm uppercase">Evaluation Result</span>
                                     </div>
-                                    <div className={`p-4 rounded-full bg-slate-950 border-2 ${
-                                        result.risk_level === 'High' ? 'border-red-500/50 shadow-lg shadow-red-500/20' :
-                                        result.risk_level === 'Moderate' ? 'border-yellow-500/50 shadow-lg shadow-yellow-500/20' :
-                                        result.risk_level === 'Low' ? 'border-emerald-500/50 shadow-lg shadow-emerald-500/20' :
-                                        'border-blue-500/50'
-                                    }`}>
-                                        {getRiskIcon(result.risk_level)}
-                                    </div>
+                                    <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${getRiskBadgeColor(result.risk_level)}`}>
+                                        {result.risk_level} Risk
+                                    </span>
                                 </div>
 
-                                {result.warning ? (
-                                    <div className="flex-1 flex flex-col justify-center">
-                                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6 mb-6">
-                                            <p className="text-lg text-blue-200 mb-4">{result.message}</p>
-                                            <p className="text-sm text-slate-400">
-                                                Please update your financial profile in the <span className="text-white font-medium">Dashboard</span> to get accurate risk assessments.
-                                            </p>
-                                        </div>
+                                <div className="p-8 space-y-8">
+                                    {/* AI Analysis */}
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white mb-3">AI Analysis</h3>
+                                        <p className="text-slate-300 leading-relaxed">
+                                            {result.warning ? result.message : 
+                                                <>
+                                                    Based on your current debt-to-income ratio and the requested amount of 
+                                                    <span className="font-semibold text-white"> ₹{parseFloat(formData.amount).toLocaleString()}</span>, 
+                                                    this decision carries a <span className={`font-bold ${getRiskTextColor(result.risk_level)}`}>{result.risk_level.toLowerCase()} risk</span>. 
+                                                    {result.ai_explanation}
+                                                </>
+                                            }
+                                        </p>
                                     </div>
-                                ) : (
-                                    <div className="space-y-6 flex-1">
-                                        {/* Metrics */}
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
-                                                <p className="text-xs text-slate-500 uppercase mb-1">Projected DTI</p>
-                                                <p className="text-2xl font-bold text-white">
-                                                    {result.metrics_at_evaluation?.projected_dti_percentage?.toFixed(1) || 0}%
-                                                </p>
-                                                <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                                                    <div 
-                                                        className={`h-full ${
-                                                            (result.metrics_at_evaluation?.projected_dti_percentage || 0) > 40 ? 'bg-red-500' :
-                                                            (result.metrics_at_evaluation?.projected_dti_percentage || 0) > 30 ? 'bg-yellow-500' : 'bg-emerald-500'
-                                                        }`}
-                                                        style={{ width: `${Math.min(result.metrics_at_evaluation?.projected_dti_percentage || 0, 100)}%` }}
-                                                    />
+
+                                    {!result.warning && (
+                                        <>
+                                            {/* Metrics Progress Bars */}
+                                            <div className="space-y-6">
+                                                {/* EMI Impact */}
+                                                <div>
+                                                    <div className="flex justify-between items-end mb-2">
+                                                        <span className="text-sm font-semibold text-slate-300">Proposed EMI Impact</span>
+                                                        <span className="text-sm font-bold text-blue-500">{result.metrics_at_evaluation?.new_emi_impact_percentage}% of Net Income</span>
+                                                    </div>
+                                                    <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
+                                                        <div 
+                                                            className="h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out"
+                                                            style={{ width: `${Math.min(result.metrics_at_evaluation?.new_emi_impact_percentage || 0, 100)}%` }}
+                                                        />
+                                                    </div>
+                                                    <div className="flex justify-between mt-1 text-xs text-slate-500 font-medium">
+                                                        <span>Safe (&lt; 15%)</span>
+                                                        <span>Critical (&gt; 40%)</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Emergency Fund Coverage */}
+                                                <div>
+                                                    <div className="flex justify-between items-end mb-2">
+                                                        <span className="text-sm font-semibold text-slate-300">Emergency Fund Coverage</span>
+                                                        <span className={`text-sm font-bold ${
+                                                            (result.metrics_at_evaluation?.emergency_fund_months || 0) < 3 ? 'text-red-500' : 'text-emerald-500'
+                                                        }`}>
+                                                            {result.metrics_at_evaluation?.emergency_fund_months} Months
+                                                        </span>
+                                                    </div>
+                                                    <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
+                                                        <div 
+                                                            className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                                                                (result.metrics_at_evaluation?.emergency_fund_months || 0) < 3 ? 'bg-red-500' : 
+                                                                (result.metrics_at_evaluation?.emergency_fund_months || 0) < 6 ? 'bg-yellow-500' : 'bg-emerald-500'
+                                                            }`}
+                                                            style={{ width: `${Math.min(((result.metrics_at_evaluation?.emergency_fund_months || 0) / 6) * 100, 100)}%` }}
+                                                        />
+                                                    </div>
+                                                    <div className="flex justify-between mt-1 text-xs text-slate-500 font-medium">
+                                                        <span>Min: 3 Mo</span>
+                                                        <span>Ideal: 6 Mo</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
-                                                <p className="text-xs text-slate-500 uppercase mb-1">New Monthly Commit</p>
-                                                <p className="text-2xl font-bold text-white">
-                                                    ₹{parseFloat(amount).toLocaleString('en-IN')}
-                                                </p>
-                                            </div>
-                                        </div>
 
-                                        {/* AI Explanation */}
-                                        <div className="bg-slate-950/80 p-6 rounded-xl border border-slate-800 relative">
-                                            <div className="absolute -top-3 left-6 bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded border border-slate-700">
-                                                AI Analysis
-                                            </div>
-                                            <p className="text-slate-300 leading-relaxed italic">
-                                                "{result.ai_explanation}"
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
+                                            {/* Recommendations */}
+                                            {result.recommendations && result.recommendations.length > 0 && (
+                                                <div className="pt-2">
+                                                    <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                                                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                                        AI Safety Recommendations
+                                                    </h4>
+                                                    <ul className="space-y-3">
+                                                        {result.recommendations.map((rec, index) => (
+                                                            <li key={index} className="flex gap-3 text-slate-300 text-sm items-start">
+                                                                <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
+                                                                <span>{rec}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Footer Actions */}
+                                <div className="bg-slate-950 px-8 py-4 border-t border-slate-800 flex gap-4">
+                                    <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-slate-300 font-semibold text-sm hover:bg-slate-800 hover:text-white transition-colors shadow-sm">
+                                        <Save className="w-4 h-4" />
+                                        Save Evaluation
+                                    </button>
+                                    <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-slate-300 font-semibold text-sm hover:bg-slate-800 hover:text-white transition-colors shadow-sm">
+                                        <Share2 className="w-4 h-4" />
+                                        Export Report
+                                    </button>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
