@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from models.schemas import DecisionRequest
 from utils.clerk_auth import get_current_user
 from database import decisions_collection, users_collection
-from services.metrics_engine import evaluate_decision_risk
+from services.metrics_engine import evaluate_decision_risk, calculate_emi
 from services.ai_service import evaluate_decision_explanation
 from datetime import datetime, timezone
 
@@ -31,11 +31,14 @@ async def evaluate_decision(
     user_income = user_profile.get("monthly_income", 0.0)
     current_debt = user_profile.get("current_debt", 0.0)
     savings_rate = user_profile.get("savings_rate", 0.0)
+    total_savings = user_profile.get("current_savings", 0.0)
+    fixed_expenses = user_profile.get("fixed_expenses", 0.0)
 
-    new_emi = (
-        request.amount / request.duration_months
-        if request.duration_months
-        else request.amount
+    # Calculate EMI based on interest rate and duration
+    new_emi = calculate_emi(
+        principal=request.amount,
+        annual_interest_rate=request.interest_rate or 0.0,
+        tenure_months=request.duration_months or 12
     )
 
     evaluation = evaluate_decision_risk(
@@ -43,12 +46,17 @@ async def evaluate_decision(
         current_monthly_debt=current_debt,
         new_monthly_obligation=new_emi,
         savings_rate=savings_rate,
+        total_savings=total_savings,
+        fixed_expenses=fixed_expenses
     )
 
     metrics_context = {
         "monthly_income": user_income,
         "projected_dti_percentage": evaluation["projected_dti"],
         "current_savings_rate": savings_rate,
+        "emergency_fund_months": evaluation["emergency_fund_months"],
+        "new_emi_impact_percentage": evaluation["new_emi_impact_percentage"],
+        "calculated_emi": new_emi
     }
 
     ai_explanation = await evaluate_decision_explanation(
@@ -62,6 +70,7 @@ async def evaluate_decision(
         "decision": request.model_dump(),
         "metrics_at_evaluation": metrics_context,
         "risk_level": evaluation["risk_level"],
+        "recommendations": evaluation["recommendations"],
         "ai_explanation": ai_explanation,
         "created_at": datetime.now(timezone.utc),
     }
