@@ -1,6 +1,10 @@
 import google.generativeai as genai
 import os
 from dotenv import load_dotenv
+import io
+from PIL import Image
+import pytesseract
+import json
 
 load_dotenv()
 
