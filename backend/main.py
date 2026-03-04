@@ -40,6 +40,10 @@ app.include_router(decision.router, tags=["Decisions"])
 app.include_router(chat.router, prefix="/chat", tags=["AI Chat"])
 app.include_router(profile.router, prefix="/profile", tags=["Profile"])
 
+# Import receipt router
+from routes import receipt
+app.include_router(receipt.router, prefix="/receipt", tags=["Receipts"])
+
 @app.get("/")
 async def root():
     return {
