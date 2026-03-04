@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useApi } from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,7 +10,11 @@ import {
     Calendar,
     Wallet,
     TrendingUp,
-    ShoppingBag
+    ShoppingBag,
+    ScanLine,
+    Loader2,
+    CheckCircle,
+    XCircle
 } from 'lucide-react';
 
 const ExpenseTracker = () => {
@@ -31,6 +35,9 @@ const ExpenseTracker = () => {
     
     const [isLoading, setIsLoading] = useState(true);
     const [expenseError, setExpenseError] = useState('');
+    const [isScanning, setIsScanning] = useState(false);
+    const [scannedData, setScannedData] = useState(null);
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         if (isLoaded) {
@@ -167,6 +174,7 @@ const ExpenseTracker = () => {
                     category: 'Food & Groceries',
                     date: new Date().toISOString().split('T')[0]
                 });
+                setScannedData(null); // Clear scanned data if any
             }
         } catch (error) {
             console.error('Error adding expense:', error);
@@ -194,6 +202,52 @@ const ExpenseTracker = () => {
             }
         } catch (error) {
             console.error('Error deleting expense:', error);
+        }
+    };
+
+    const handleFileSelect = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsScanning(true);
+        setExpenseError('');
+        
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await api.scanReceipt(formData);
+            if (res.data && res.data.parsed_expense) {
+                const parsed = res.data.parsed_expense;
+                setScannedData({
+                    title: parsed.merchant || parsed.title || 'Receipt Expense',
+                    amount: parsed.amount || '',
+                    category: parsed.category || 'Other',
+                    date: new Date().toISOString().split('T')[0]
+                });
+            }
+        } catch (error) {
+            console.error('Error scanning receipt:', error);
+            setExpenseError('Failed to scan receipt. Please try manual entry.');
+        } finally {
+            setIsScanning(false);
+            // Reset file input
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    };
+
+    const confirmScannedData = () => {
+        if (scannedData) {
+            setNewExpense({
+                ...newExpense,
+                title: scannedData.title,
+                amount: scannedData.amount,
+                category: scannedData.category,
+                date: scannedData.date
+            });
+            setScannedData(null);
         }
     };
 
@@ -228,7 +282,6 @@ const ExpenseTracker = () => {
                         <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
                             ₹{monthlySpending.toLocaleString('en-IN')}
                         </h2>
-                        {/* <span className="text-xs font-bold text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded">+12% vs last month</span> */}
                     </div>
                 </div>
 
@@ -248,7 +301,6 @@ const ExpenseTracker = () => {
                         <h2 className={`text-3xl font-bold ${balance >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                             ₹{balance.toLocaleString('en-IN')}
                         </h2>
-                        {/* <span className="text-slate-400 text-sm">of ₹40,000.00</span> */}
                     </div>
                 </div>
             </div>
@@ -315,7 +367,66 @@ const ExpenseTracker = () => {
 
                 {/* Add Expense Form */}
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 h-fit sticky top-6">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Add Expense</h3>
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Add Expense</h3>
+                        <button 
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isScanning}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm font-bold rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors disabled:opacity-50"
+                        >
+                            {isScanning ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                                <ScanLine className="w-4 h-4" />
+                            )}
+                            Scan Receipt
+                        </button>
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={handleFileSelect}
+                        />
+                    </div>
+
+                    {scannedData && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-900/30 rounded-xl"
+                        >
+                            <div className="flex items-start gap-3">
+                                <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                                <div>
+                                    <h4 className="font-bold text-emerald-700 dark:text-emerald-400 text-sm">Receipt Scanned!</h4>
+                                    <p className="text-xs text-emerald-600 dark:text-emerald-500 mt-1 mb-2">
+                                        We found the following details. Please confirm to autofill.
+                                    </p>
+                                    <div className="text-xs space-y-1 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-2 rounded border border-emerald-100 dark:border-emerald-900/20">
+                                        <p><span className="font-semibold">Merchant:</span> {scannedData.title}</p>
+                                        <p><span className="font-semibold">Amount:</span> ₹{scannedData.amount}</p>
+                                        <p><span className="font-semibold">Category:</span> {scannedData.category}</p>
+                                    </div>
+                                    <div className="flex gap-2 mt-3">
+                                        <button 
+                                            onClick={confirmScannedData}
+                                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors"
+                                        >
+                                            Confirm & Autofill
+                                        </button>
+                                        <button 
+                                            onClick={() => setScannedData(null)}
+                                            className="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold rounded-lg transition-colors"
+                                        >
+                                            Discard
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
                     <form onSubmit={handleExpenseSubmit} className="space-y-5">
                         <div>
                             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Amount</label>
@@ -355,7 +466,6 @@ const ExpenseTracker = () => {
                                         onChange={handleExpenseChange}
                                         className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-3 px-4 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                     />
-                                    {/* <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" /> */}
                                 </div>
                                 <button 
                                     type="button"
