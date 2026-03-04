@@ -196,9 +196,6 @@ const Dashboard = () => {
           icon={<Wallet className="w-6 h-6" />}
           color="text-blue-500"
           bgColor="bg-blue-500/10"
-          trend={stats.trends?.income || "0%"}
-          trendColor="text-emerald-500"
-          trendBg="bg-emerald-500/10"
         />
         <SummaryCard
           title="Total Expenses"
@@ -206,9 +203,6 @@ const Dashboard = () => {
           icon={<ShoppingCart className="w-6 h-6" />}
           color="text-rose-500"
           bgColor="bg-rose-500/10"
-          trend={stats.trends?.expenses || "0%"}
-          trendColor="text-rose-500"
-          trendBg="bg-rose-500/10"
         />
         <SummaryCard
           title="Disposable Income"
@@ -216,9 +210,6 @@ const Dashboard = () => {
           icon={<PiggyBank className="w-6 h-6" />}
           color="text-emerald-500"
           bgColor="bg-emerald-500/10"
-          trend={stats.trends?.disposable || "0%"}
-          trendColor="text-rose-500"
-          trendBg="bg-rose-500/10"
         />
         <SummaryCard
           title="Debt-to-Income"
@@ -226,9 +217,6 @@ const Dashboard = () => {
           icon={<Landmark className="w-6 h-6" />}
           color="text-purple-500"
           bgColor="bg-purple-500/10"
-          trend={stats.trends?.dti || "0%"}
-          trendColor="text-emerald-500"
-          trendBg="bg-emerald-500/10"
         />
       </div>
 
@@ -430,20 +418,10 @@ const SummaryCard = ({
   icon,
   color,
   bgColor,
-  trend,
-  trendColor,
-  trendBg,
 }) => (
   <div className="bg-slate-900/50 backdrop-blur-sm p-6 rounded-xl border border-slate-800 shadow-sm hover:border-slate-700 transition-colors">
     <div className="flex justify-between items-start mb-4">
       <div className={`${color} ${bgColor} p-2 rounded-lg`}>{icon}</div>
-      {trend && (
-        <span
-          className={`${trendColor} ${trendBg} text-xs font-bold px-2 py-1 rounded`}
-        >
-          {trend}
-        </span>
-      )}
     </div>
     <p className="text-slate-400 text-sm font-medium">{title}</p>
     <p className="text-2xl font-bold text-white mt-1">{value}</p>
