@@ -47,15 +47,15 @@ export const useApi = (getToken) => {
     }
 
     return {
-        getProfile: () => api.get('/profile'),
-        updateProfile: (data) => api.post('/profile', data),
-        resetProfile: () => api.delete('/profile'),
-        getExpenses: () => api.get('/expenses'),
-        addExpense: (data) => api.post('/expenses', data),
-        deleteExpense: (id) => api.delete(`/expenses/${id}`),
-        evaluateDecision: (decisionData) => api.post('/evaluate-decision', decisionData),
-        sendMessage: (message) => api.post('/chat', { message }),
-        scanReceipt: (formData) => api.post('/receipt/scan', formData, {
+        getProfile: () => api.get('/api/profile'),
+        updateProfile: (data) => api.post('/api/profile', data),
+        resetProfile: () => api.delete('/api/profile'),
+        getExpenses: () => api.get('/api/expenses'),
+        addExpense: (data) => api.post('/api/expenses', data),
+        deleteExpense: (id) => api.delete(`/api/expenses/${id}`),
+        evaluateDecision: (decisionData) => api.post('/api/decisions/evaluate-decision', decisionData),
+        sendMessage: (message) => api.post('/api/chat', { message }),
+        scanReceipt: (formData) => api.post('/api/receipt/scan', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         }),
     };
