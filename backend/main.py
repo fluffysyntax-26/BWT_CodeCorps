@@ -1,8 +1,6 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 from database import ping_server
 from routes import expenses, decision, chat, profile
@@ -43,27 +41,9 @@ app.include_router(profile.router, prefix="/api/profile", tags=["Profile"])
 from routes import receipt
 app.include_router(receipt.router, prefix="/api/receipt", tags=["Receipts"])
 
-# Serve Frontend Static Files
-frontend_path = os.path.join(os.path.dirname(__file__), "static")
-if os.path.exists(frontend_path):
-    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
-
-    @app.get("/{full_path:path}")
-    async def serve_frontend(full_path: str):
-        # If the path looks like an API call, return 404
-        if full_path.startswith("api/"):
-            return {"detail": "Not Found"}, 404
-            
-        # For all other paths, serve index.html (SPA routing)
-        file_path = os.path.join(frontend_path, full_path)
-        if os.path.isfile(file_path):
-            return FileResponse(file_path)
-        return FileResponse(os.path.join(frontend_path, "index.html"))
-else:
-    @app.get("/")
-    async def root():
-        return {
-            "message": "Welcome to the Financial Assistant API.",
-            "status": "Server is running, but static frontend files were not found.",
-            "hint": "Build the frontend and place it in the 'static' directory."
-        }
+@app.get("/")
+async def root():
+    return {
+        "message": "Welcome to the Financial Assistant API.",
+        "status": "Server is running successfully."
+    }
