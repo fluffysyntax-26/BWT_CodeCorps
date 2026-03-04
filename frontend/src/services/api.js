@@ -55,6 +55,9 @@ export const useApi = (getToken) => {
         deleteExpense: (id) => api.delete(`/expenses/${id}`),
         evaluateDecision: (decisionData) => api.post('/evaluate-decision', decisionData),
         sendMessage: (message) => api.post('/chat', { message }),
+        scanReceipt: (formData) => api.post('/receipt/scan', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        }),
     };
 };
 
