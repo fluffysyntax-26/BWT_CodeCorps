@@ -2,11 +2,9 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install system dependencies for Tesseract and OpenCV/Pillow
+# Install system dependencies for Tesseract
 RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr \
-    libgl1 \
-    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
